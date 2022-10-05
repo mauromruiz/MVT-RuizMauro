@@ -1,18 +1,26 @@
 
+from datetime import datetime
+from xmlrpc.client import DateTime
 from django.http import HttpResponse
-from django.template import Context, Template
+from django.template import Context, Template, loader
+import random
+from familiares.models import Familiar
 
-def pagina1(request):
-    return HttpResponse('<h1> Primera Pagina</h1>')
 
-def mi_template(request):
+def crear_familiar(request, nombre, apellido):
 
-    cargar_archivo = open(r'C:\Proyectos Python\MVT+RuizMauro\Templates\template.html', 'r')
-    template = Template(cargar_archivo.read())
-    cargar_archivo.close()
+    familiar = Familiar(nombre=nombre, apellido=apellido, edad=random.randrange(1,80), fecha_creacion=datetime.now())
+    familiar.save()
+    template = loader.get_template('crear_familiar.html')
+    template_renderizado = template.render({'familiar': familiar})
 
-    contexto = Context()
+    return HttpResponse(template_renderizado)
 
-    template_renderizado = template.render(contexto)
+def ver_familiares(request):
+
+    familiares = Familiar.objects.all()
+
+    template = loader.get_template('ver_familiares.html')
+    template_renderizado = template.render({'familiares': familiares})
 
     return HttpResponse(template_renderizado)
